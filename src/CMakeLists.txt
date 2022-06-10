@@ -717,6 +717,7 @@ add_subdirectory( util )
 add_subdirectory( archive )
 add_subdirectory( launcher )
 add_subdirectory( dosbox-cdrom )
+add_subdirectory( network )
 
 if( WIN32 )
     set( WIN32_SPECIFIC_LIBS dbghelp )
@@ -751,6 +752,7 @@ target_link_libraries(
         launcher
         serialization
         archive
+        haunted-coop
         chillout
         ${WIN32_SPECIFIC_LIBS}
 )
