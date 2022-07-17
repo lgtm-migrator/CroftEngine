@@ -741,6 +741,7 @@ target_link_libraries(
         shared
         launcher
         serialization
+        remotery
         chillout
         ${WIN32_SPECIFIC_LIBS}
 )

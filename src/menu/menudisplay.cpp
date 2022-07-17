@@ -19,6 +19,7 @@
 #include "menuringtransform.h"
 #include "menustate.h"
 #include "qs/qs.h"
+#include "Remotery.h"
 #include "render/pass/framebuffer.h"
 #include "render/scene/camera.h"
 #include "render/scene/materialmanager.h"
@@ -134,6 +135,7 @@ void MenuDisplay::drawMenuObjectDescription(ui::Ui& ui, engine::world::World& wo
 
 void MenuDisplay::display(ui::Ui& ui, engine::world::World& world)
 {
+  rmt_ScopedCPUSample(MenuDisplay, 0);
   SOGLB_DEBUGGROUP("menu");
   setViewport(world.getPresenter().getRenderViewport());
 

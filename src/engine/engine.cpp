@@ -281,6 +281,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
   while(true)
   {
+    rmt_ScopedCPUSample(RenderLoop, 0);
     ghostManager.model->setVisible(m_engineConfig->displaySettings.ghost);
 
     if(m_presenter->shouldClose())
@@ -310,6 +311,7 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
     if(menu != nullptr)
     {
+      rmt_ScopedCPUSample(Menu, 0);
       {
         const auto portals = world.getCameraController().update();
         if(const auto lara = world.getObjectManager().getLaraPtr())
@@ -418,11 +420,13 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
 
       if(allowSave && m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Save))
       {
+        rmt_ScopedCPUSample(Save, 0);
         world.save(std::nullopt);
         throttler.reset();
       }
       else if(m_presenter->getInputHandler().hasDebouncedAction(hid::Action::Load))
       {
+        rmt_ScopedCPUSample(Load, 0);
         if(getSavegameMeta(std::nullopt).has_value())
         {
           return {RunResult::RequestLoad, std::nullopt};
@@ -444,12 +448,14 @@ std::pair<RunResult, std::optional<size_t>> Engine::run(world::World& world, boo
       drawAmmoWidget(ui, getPresenter().getTrFont(), world, ammoDisplayDuration);
       if(bugReportSavedDuration != 0_frame)
       {
+        rmt_ScopedCPUSample(BugReport, 0);
         drawBugReportMessage(ui, getPresenter().getTrFont());
         bugReportSavedDuration -= 1_frame;
       }
 
       if(ghostManager.reader != nullptr)
       {
+        rmt_ScopedCPUSample(GostUpdate, 0);
         ghostManager.model->apply(world, ghostManager.reader->read());
         for(const auto& room : world.getRooms())
         {
@@ -555,6 +561,8 @@ std::pair<RunResult, std::optional<size_t>> Engine::runTitleMenu(world::World& w
 
     if(!m_presenter->preFrame())
       continue;
+
+    rmt_ScopedCPUSample(RenderLoop, 0);
 
     ui::Ui ui{m_presenter->getMaterialManager()->getUi(), world.getPalette(), m_presenter->getUiViewport()};
 

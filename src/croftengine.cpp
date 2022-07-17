@@ -4,6 +4,7 @@
 #include "engine/script/scriptengine.h"
 #include "launcher/launcher.h"
 #include "paths.h"
+#include "Remotery.h"
 
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/log/core.hpp>
@@ -135,6 +136,9 @@ int main(int argc, char** argv)
     BOOST_LOG_TRIVIAL(warning) << "Crash report initalization failed (nowhere to write dumps)";
   }
 #endif
+
+  Remotery* rmt = nullptr;
+  rmt_CreateGlobalInstance(&rmt);
 
   std::string localeOverride;
   std::string gameflowId;

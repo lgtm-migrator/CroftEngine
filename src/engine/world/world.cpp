@@ -50,6 +50,7 @@
 #include "loader/file/texture.h"
 #include "mesh.h"
 #include "qs/qs.h"
+#include "Remotery.h"
 #include "render/rendersettings.h"
 #include "render/scene/camera.h"
 #include "render/scene/materialmanager.h"
@@ -662,6 +663,7 @@ const std::vector<int16_t>& World::getAnimCommands() const
 
 void World::update(const bool godMode)
 {
+  rmt_ScopedCPUSample(WorldUpdate, 0);
   m_objectManager.update(*this, godMode);
   if(const auto lara = m_objectManager.getLaraPtr();
      getEngine().getEngineConfig()->lowHealthMonochrome && lara != nullptr)
@@ -1031,6 +1033,7 @@ void World::serialize(const serialization::Serializer<World>& ser)
 
 void World::gameLoop(bool godMode, float blackAlpha, ui::Ui& ui)
 {
+  rmt_ScopedCPUSample(GameLoop, 0);
   update(godMode);
   m_player->laraHealth = m_objectManager.getLara().m_state.health;
 

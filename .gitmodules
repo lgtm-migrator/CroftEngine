@@ -10,3 +10,6 @@
 [submodule "3rdparty/chillout"]
 	path = 3rdparty/chillout
 	url = https://gitlab.com/ribtoks/chillout.git
+[submodule ".\\3rdparty\\Remotery"]
+	path = .\\3rdparty\\Remotery
+	url = https://github.com/Celtoys/Remotery.git

@@ -314,6 +314,7 @@ gslu::nn_shared<Material> MaterialManager::getFXAA(uint8_t preset)
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getFXAA(preset));
   configureForScreenSpaceEffect(*m, false);
+
   m_fxaa.emplace(preset, m);
   return m;
 }
@@ -326,6 +327,7 @@ gslu::nn_shared<Material> MaterialManager::getCRTV0()
   auto m = gsl::make_shared<Material>(m_shaderCache->getCRTV0());
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
+
   m_crtV0 = m;
   return m;
 }
@@ -337,6 +339,7 @@ gslu::nn_shared<Material> MaterialManager::getCRTV1()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getCRTV1());
   configureForScreenSpaceEffect(*m, false);
+
   m_crtV1 = m;
   return m;
 }
@@ -348,6 +351,7 @@ gslu::nn_shared<Material> MaterialManager::getVelvia()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getVelvia());
   configureForScreenSpaceEffect(*m, false);
+
   m_velvia = m;
   return m;
 }
@@ -359,6 +363,7 @@ gslu::nn_shared<Material> MaterialManager::getDeath()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getDeath());
   configureForScreenSpaceEffect(*m, false);
+
   m_death = m;
   return m;
 }
@@ -371,6 +376,7 @@ gslu::nn_shared<Material> MaterialManager::getFilmGrain()
   auto m = gsl::make_shared<Material>(m_shaderCache->getFilmGrain());
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
+
   m_filmGrain = m;
   return m;
 }
@@ -382,6 +388,7 @@ gslu::nn_shared<Material> MaterialManager::getLensDistortion()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getLensDistortion());
   m->getUniformBlock("Camera")->bindCameraBuffer(m_renderer->getCamera());
+  configureForScreenSpaceEffect(*m, false);
 
   m_lensDistortion = m;
   return m;
@@ -393,6 +400,8 @@ gslu::nn_shared<Material> MaterialManager::getHBAOFx()
     return gsl::not_null{m_hbaoFx};
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getHBAOFx());
+  configureForScreenSpaceEffect(*m, false);
+
   m_hbaoFx = m;
   return m;
 }
@@ -403,6 +412,8 @@ gslu::nn_shared<Material> MaterialManager::getUnderwaterMovement()
     return gsl::not_null{m_underwaterMovement};
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getUnderwaterMovement());
+  configureForScreenSpaceEffect(*m, false);
+
   m_underwaterMovement = m;
   return m;
 }
@@ -414,6 +425,8 @@ gslu::nn_shared<Material> MaterialManager::getReflective()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getReflective());
   configureForScreenSpaceEffect(*m, false);
+  configureForScreenSpaceEffect(*m, false);
+
   m_reflective = m;
   return m;
 }
@@ -425,6 +438,7 @@ gslu::nn_shared<Material> MaterialManager::getBloom()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getBloom());
   configureForScreenSpaceEffect(*m, false);
+
   m_bloom = m;
   return m;
 }
@@ -436,6 +450,7 @@ gslu::nn_shared<Material> MaterialManager::getBloomFilter()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getBloomFilter());
   configureForScreenSpaceEffect(*m, false);
+
   m_bloomFilter = m;
   return m;
 }
@@ -448,6 +463,7 @@ gslu::nn_shared<Material> MaterialManager::getHBAO()
   auto m = gsl::make_shared<Material>(m_shaderCache->getHBAO());
   m->getUniform("u_noise")->set(gsl::not_null{m_noiseTexture});
   configureForScreenSpaceEffect(*m, false);
+
   m_hbao = m;
   return m;
 }
@@ -459,6 +475,7 @@ gslu::nn_shared<Material> MaterialManager::getVSMSquare()
 
   auto m = gsl::make_shared<Material>(m_shaderCache->getVSMSquare());
   configureForScreenSpaceEffect(*m, false);
+
   m_vsmSquare = m;
   return m;
 }

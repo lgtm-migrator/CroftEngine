@@ -26,10 +26,7 @@ public:
 
   [[nodiscard]] gl::RenderState bind();
 
-  void renderBlur()
-  {
-    m_blur.render();
-  }
+  void renderBlur();
 
   [[nodiscard]] auto getPositionBuffer() const
   {

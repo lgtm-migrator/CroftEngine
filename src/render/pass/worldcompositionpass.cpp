@@ -3,6 +3,7 @@
 #include "config.h"
 #include "geometrypass.h"
 #include "portalpass.h"
+#include "Remotery.h"
 #include "render/renderpipeline.h"
 #include "render/rendersettings.h"
 #include "render/scene/material.h"
@@ -175,22 +176,36 @@ void WorldCompositionPass::updateCamera(const gslu::nn_shared<scene::Camera>& ca
 // NOLINTNEXTLINE(readability-make-member-function-const)
 void WorldCompositionPass::render(bool inWater)
 {
+  rmt_ScopedCPUSample(WorldCompositionPass, 0);
   SOGLB_DEBUGGROUP("world-composition-pass");
   m_fb->bind();
 
-  scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
-  if(inWater)
-    m_inWaterMesh->render(nullptr, context);
-  else
-    m_noWaterMesh->render(nullptr, context);
+  {
+    rmt_ScopedCPUSample(Composition, 0);
+    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
+    if(inWater)
+      m_inWaterMesh->render(nullptr, context);
+    else
+      m_noWaterMesh->render(nullptr, context);
+
+    if constexpr(FlushPasses)
+      GL_ASSERT(gl::api::finish());
+  }
 
   if(m_bloom)
   {
+    rmt_ScopedCPUSample(Bloom, 0);
+
     m_bloomFilter.render(false);
     m_bloomBlur1.render();
     m_bloomBlur2.render();
     m_fbBloom->bind();
+
+    scene::RenderContext context{scene::RenderMode::Full, std::nullopt};
     m_bloomMesh->render(nullptr, context);
+
+    if constexpr(FlushPasses)
+      GL_ASSERT(gl::api::finish());
   }
 
   if constexpr(FlushPasses)

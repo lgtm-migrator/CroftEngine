@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/magic.h"
+#include "Remotery.h"
 
 #include <chrono>
 #include <numeric>
@@ -24,6 +25,7 @@ public:
 
     if(wait > 0)
     {
+      rmt_ScopedCPUSample(ThrottlerSleep, 0);
       std::this_thread::sleep_until(m_nextFrameTime);
       m_nextFrameTime += FrameDuration;
     }

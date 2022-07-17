@@ -2,6 +2,7 @@
 
 #include "filterhandle.h"
 #include "loadefx.h"
+#include "Remotery.h"
 #include "sourcehandle.h"
 #include "streamvoice.h"
 #include "utils.h"
@@ -279,6 +280,7 @@ gslu::nn_shared<StreamVoice> Device::createStream(std::unique_ptr<AbstractStream
 
 void Device::updateStreams()
 {
+  rmt_ScopedCPUSample(DeviceUpdateStreams, 0);
   std::lock_guard lock{m_streamsLock};
   for(const auto& stream : m_streams)
     stream->update();

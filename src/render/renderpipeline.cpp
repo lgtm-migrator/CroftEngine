@@ -1,12 +1,14 @@
 #include "renderpipeline.h"
 
 #include "engine/world/room.h"
+#include "pass/config.h"
 #include "pass/effectpass.h"
 #include "pass/geometrypass.h"
 #include "pass/hbaopass.h"
 #include "pass/portalpass.h"
 #include "pass/uipass.h"
 #include "pass/worldcompositionpass.h"
+#include "Remotery.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/visitor.h"
 #include "rendersettings.h"
@@ -40,6 +42,7 @@ RenderPipeline::RenderPipeline(scene::MaterialManager& materialManager,
 
 void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>& rooms, const bool inWater)
 {
+  rmt_ScopedCPUSample(WorldCompositionPass, 0);
   BOOST_ASSERT(m_portalPass != nullptr);
   if(m_renderSettings.waterDenoise)
     m_portalPass->renderBlur();
@@ -52,6 +55,7 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
   m_worldCompositionPass->render(inWater);
 
   {
+    rmt_ScopedCPUSample(RenderDust, 0);
     render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
     for(const auto& room : rooms)
     {
@@ -71,11 +75,15 @@ void RenderPipeline::worldCompositionPass(const std::vector<engine::world::Room>
 
       context.popState();
     }
+
+    if constexpr(pass::FlushPasses)
+      GL_ASSERT(gl::api::finish());
   }
 
   auto finalOutput = m_worldCompositionPass->getFramebuffer();
   for(const auto& effect : m_effects)
   {
+    rmt_ScopedCPUSample(Effect, 0);
     effect->render(inWater);
     finalOutput = effect->getFramebuffer();
   }
@@ -262,6 +270,7 @@ void RenderPipeline::bindBackbuffer()
 
 void RenderPipeline::renderBackbufferEffects()
 {
+  rmt_ScopedCPUSample(BackbufferEffects, 0);
   gsl_Assert(m_backbuffer != nullptr);
   gl::RenderState::getWantedState().setViewport(m_displaySize);
   gl::RenderState::applyWantedState();

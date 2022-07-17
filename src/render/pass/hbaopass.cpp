@@ -2,6 +2,7 @@
 
 #include "config.h"
 #include "geometrypass.h"
+#include "Remotery.h"
 #include "render/scene/material.h"
 #include "render/scene/materialmanager.h"
 #include "render/scene/mesh.h"
@@ -72,6 +73,7 @@ void HBAOPass::updateCamera(const gslu::nn_shared<scene::Camera>& camera)
 
 void HBAOPass::render()
 {
+  rmt_ScopedCPUSample(HBAOPass, 0);
   SOGLB_DEBUGGROUP("hbao-pass");
   m_fb->bind();
 

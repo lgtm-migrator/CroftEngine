@@ -2,6 +2,7 @@
 
 #include "camera.h"
 #include "node.h"
+#include "Remotery.h"
 #include "rendercontext.h"
 #include "rendermode.h"
 #include "visitor.h"
@@ -30,6 +31,7 @@ Renderer::~Renderer() = default;
 void Renderer::render()
 {
   {
+    rmt_ScopedCPUSample(RendererRender, 0);
     RenderContext context{RenderMode::Full, std::nullopt};
     Visitor visitor{context};
     m_rootNode->accept(visitor);

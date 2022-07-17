@@ -10,6 +10,7 @@
 #include "objects/laraobject.h"
 #include "objects/objectstate.h"
 #include "qs/qs.h"
+#include "Remotery.h"
 #include "render/pass/config.h"
 #include "render/renderpipeline.h"
 #include "render/rendersettings.h"
@@ -124,9 +125,11 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
                             const CameraController& cameraController,
                             const std::unordered_set<const world::Portal*>& waterEntryPortals)
 {
+  rmt_ScopedCPUSample(RenderWorld, 0);
   m_renderPipeline->updateCamera(m_renderer->getCamera());
 
   {
+    rmt_ScopedCPUSample(CSM, 0);
     SOGLB_DEBUGGROUP("csm-pass");
     gl::RenderState::resetWantedState();
     gl::RenderState::getWantedState().setDepthClamp(true);
@@ -194,10 +197,12 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
   }
 
   {
+    rmt_ScopedCPUSample(Geometry, 0);
     SOGLB_DEBUGGROUP("geometry-pass");
     m_renderPipeline->bindGeometryFrameBuffer(cameraController.getCamera()->getFarPlane());
 
     {
+      rmt_ScopedCPUSample(DepthPrefill, 0);
       SOGLB_DEBUGGROUP("depth-prefill-pass");
 
       // collect rooms and sort front-to-back
@@ -227,20 +232,24 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
         room->node->getRenderable()->render(room->node.get(), context);
         context.popState();
       }
+
       if constexpr(render::pass::FlushPasses)
         GL_ASSERT(gl::api::finish());
     }
 
     m_renderer->render();
-    render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
-    for(auto& room : rooms)
     {
-      if(!room.node->isVisible())
-        continue;
+      rmt_ScopedCPUSample(RoomParticles, 0);
+      render::scene::RenderContext context{render::scene::RenderMode::Full, std::nullopt};
+      for(auto& room : rooms)
+      {
+        if(!room.node->isVisible())
+          continue;
 
-      context.pushState(room.node->getRenderState());
-      room.particles.render(context);
-      context.popState();
+        context.pushState(room.node->getRenderState());
+        room.particles.render(context);
+        context.popState();
+      }
     }
 
     if constexpr(render::pass::FlushPasses)
@@ -248,6 +257,7 @@ void Presenter::renderWorld(const std::vector<world::Room>& rooms,
   }
 
   {
+    rmt_ScopedCPUSample(PortalDepth, 0);
     SOGLB_DEBUGGROUP("portal-depth-pass");
     gl::RenderState::resetWantedState();
 
@@ -503,6 +513,7 @@ void Presenter::drawLoadingScreen(const std::string& state)
 
 bool Presenter::preFrame()
 {
+  rmt_MarkFrame();
   m_window->updateWindowSize();
   if(m_window->isMinimized())
     return false;
@@ -543,6 +554,8 @@ void Presenter::setTrFont(std::unique_ptr<ui::TRFont>&& font)
 void Presenter::swapBuffers()
 {
   m_renderPipeline->renderBackbufferEffects();
+
+  rmt_ScopedCPUSample(SwapBuffers, 0);
   m_window->swapBuffers();
 }
 
@@ -607,6 +620,7 @@ void Presenter::renderScreenOverlay()
 
 void Presenter::renderUi(ui::Ui& ui, float alpha)
 {
+  rmt_ScopedCPUSample(RenderUi, 0);
   m_renderPipeline->bindUiFrameBuffer();
   m_renderer->getCamera()->setViewport(getUiViewport());
   ui.render();
@@ -620,6 +634,7 @@ void Presenter::disableScreenOverlay()
 
 void Presenter::updateSoundEngine()
 {
+  rmt_ScopedCPUSample(UpdateSoundEngine, 0);
   m_soundEngine->update();
 }
 

@@ -1,5 +1,7 @@
 #include "portalpass.h"
 
+#include "config.h"
+#include "Remotery.h"
 #include "render/scene/blur.h"
 
 #include <algorithm>
@@ -52,5 +54,14 @@ gl::RenderState PortalPass::bind()
   m_positionBuffer->clear(gl::Scalar32F{-std::numeric_limits<float>::infinity()});
   m_fb->bind();
   return m_fb->getRenderState();
+}
+
+void PortalPass::renderBlur()
+{
+  rmt_ScopedCPUSample(Portal, 0);
+  m_blur.render();
+
+  if constexpr(render::pass::FlushPasses)
+    GL_ASSERT(gl::api::finish());
 }
 } // namespace render::pass

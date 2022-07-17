@@ -67,6 +67,49 @@ include( get_libarchive )
 add_subdirectory( 3rdparty/rapidyaml EXCLUDE_FROM_ALL )
 add_subdirectory( 3rdparty/type_safe EXCLUDE_FROM_ALL )
 add_subdirectory( 3rdparty/chillout EXCLUDE_FROM_ALL )
+
+option( WITH_REMOTERY "Enable Remotery monitoring" OFF )
+
+add_library(
+        remotery
+        STATIC
+        3rdparty/Remotery/lib/Remotery.c
+)
+target_include_directories(
+        remotery
+        PUBLIC
+        3rdparty/Remotery/lib
+)
+if( WITH_REMOTERY )
+    target_compile_definitions(
+            remotery
+            PUBLIC
+            -DRMT_ENABLED=1
+    )
+
+    include( TestBigEndian )
+    test_big_endian( IS_BIG_ENDIAN )
+    if( IS_BIG_ENDIAN )
+        target_compile_definitions(
+                remotery
+                PUBLIC
+                -DRMT_ASSUME_LITTLE_ENDIAN=0
+        )
+    else()
+        target_compile_definitions(
+                remotery
+                PUBLIC
+                -DRMT_ASSUME_LITTLE_ENDIAN=1
+        )
+    endif()
+else()
+    target_compile_definitions(
+            remotery
+            PUBLIC
+            -DRMT_ENABLED=0
+    )
+endif()
+
 add_subdirectory( src )
 
 if( UNIX )
